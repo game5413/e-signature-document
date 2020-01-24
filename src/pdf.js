@@ -186,7 +186,6 @@ const PdfComponent = ({ src, width, height }) => {
     const context = canvas.getContext('2d');
     // context.font = "30px arial"
     // context.fillText("Here",signatureProps.x,signatureProps.y)
-    console.log(signatureProps.width)
     var img = new Image;
     img.src = signature
     context.drawImage(img, signatureProps.x, signatureProps.y, signatureProps.width,  signatureProps.height);
@@ -220,10 +219,10 @@ const PdfComponent = ({ src, width, height }) => {
         </div>
         <div className="content">
             <div className="drop-area">
-              <div ref={dragableEl} className='resizable'>
-                <div className='resizers'>
+              <div ref={dragableEl} className="resizable dragable">
+                <div className="resizers">
                   <img className="img-wrapper" src={signature}/>
-                  <div className='resizer bottom-right'></div>
+                  <div className="resizer bottom-right"></div>
                 </div>
               </div>
             </div>
