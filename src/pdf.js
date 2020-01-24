@@ -103,7 +103,6 @@ const PdfComponent = ({ src, width, height }) => {
     let original_mouse_x = 0;
     let original_mouse_y = 0;
  
-    console.log(element)
     let currentResizer = ""
     if(type === "didmount") {
       currentResizer = element.childNodes[0].childNodes[1]
@@ -168,20 +167,22 @@ const PdfComponent = ({ src, width, height }) => {
    * @param {[wrapper]} => node element 
   */
   const cancleOverflowing = wrapper => {
-    let child = wrapper.childNodes[0]
-    child.onmouseup = () => {
-      let rect1 = child.getBoundingClientRect()
-      let rect2 = wrapper.getBoundingClientRect()
-      var isOverflow = (rect1.left < rect2.left || rect1.right > rect2.right ||rect1.top < rect2.top || rect1.bottom > rect2.bottom)
-
-      if(isOverflow) {
-        child.style.transition = "all .5s"
-        child.style.left = "120px"
-        child.style.top = "150px"
-        setTimeout(() => {
-          child.style.transition = "none"
-        }, 500);
-      }
+    for (let index = 0; index < wrapper.childNodes.length; index++) {
+      let child = wrapper.childNodes[index]
+      child.onmouseup = () => {
+        let rect1 = child.getBoundingClientRect()
+        let rect2 = wrapper.getBoundingClientRect()
+        var isOverflow = (rect1.left < rect2.left || rect1.right > rect2.right ||rect1.top < rect2.top || rect1.bottom > rect2.bottom)
+  
+        if(isOverflow) {
+          child.style.transition = "all .5s"
+          child.style.left = "120px"
+          child.style.top = "150px"
+          setTimeout(() => {
+            child.style.transition = "none"
+          }, 500);
+        }
+      } 
     }
   }
 
@@ -203,7 +204,7 @@ const PdfComponent = ({ src, width, height }) => {
     PdfGenerator.nextPage()
   }
 
-  const addElement = type => {
+  const addSignatureElement = type => {
     let parent = document.querySelector(".drop-area")
     let randomId = Math.random().toString(36).substring(7);
     let node = document.createElement("div")
@@ -220,10 +221,15 @@ const PdfComponent = ({ src, width, height }) => {
     `
     node.style.display = "unset"
     parent.appendChild(node)
+
+    // add event click on close btn
+    node.childNodes[1].childNodes[5].onclick = _ => node.remove()
     
+    //init drag and resize
     dragElement(document.getElementById(node.id))
     makeResizableDiv(node.id)
   }
+ 
 
   return (
     <div className="App">
@@ -244,7 +250,7 @@ const PdfComponent = ({ src, width, height }) => {
           })}
           <button onClick={() => printLocation()}>Print</button>
           <div style={{marginTop:50}}>
-            <span onClick={_ => addElement("signature")}>Signature</span>
+            <span onClick={_ => addSignatureElement("signature")}>Signature</span>
             <span onClick={_ => "init"}>Initial</span>
           </div>
         </div>
