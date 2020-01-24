@@ -29,7 +29,7 @@ const PdfComponent = ({ src, width, height }) => {
 
     fetchPdf();
     dragElement(dragableEl.current)
-    makeResizableDiv('.resizable')
+    makeResizableDiv(dragableEl.current.id,"didmount")
 
     let wrapper = document.querySelector(".drop-area")
     wrapper.addEventListener("mousemove", _ => cancleOverflowing(wrapper)) 
@@ -95,16 +95,21 @@ const PdfComponent = ({ src, width, height }) => {
    * [Make the DIV element resizeable]
    * @param {[elmnt]} => node element 
   */
-  const makeResizableDiv = elmnt => {
-    const element = document.querySelector(elmnt)
-    const resizers = document.querySelectorAll(elmnt + ' .resizer')
+  const makeResizableDiv = (elmnt,type) => {
+    const element = document.getElementById(elmnt)
     const maximum_size = 300;
     let original_width = 0;
     let original_height = 0;
     let original_mouse_x = 0;
     let original_mouse_y = 0;
  
-    const currentResizer = resizers[0];
+    console.log(element)
+    let currentResizer = ""
+    if(type === "didmount") {
+      currentResizer = element.childNodes[0].childNodes[1]
+    } else {
+      currentResizer = element.childNodes[1].childNodes[3];
+    }
     currentResizer.addEventListener('mousedown', function(e) {
       e.preventDefault()
       original_width = parseFloat(getComputedStyle(element, null).getPropertyValue('width').replace('px', ''));
@@ -198,6 +203,28 @@ const PdfComponent = ({ src, width, height }) => {
     PdfGenerator.nextPage()
   }
 
+  const addElement = type => {
+    let parent = document.querySelector(".drop-area")
+    let randomId = Math.random().toString(36).substring(7);
+    let node = document.createElement("div")
+    node.id = randomId
+    node.className = "resizable dragable active"
+    node.innerHTML = `
+      <div class="resizers">
+        <img class="img-wrapper" src=${signature} />
+        <div class="resizer bottom-right ${node.id}"></div>
+        <div class='resizer-close top-right'>
+          <span>x</span>
+        </div>
+      </div>
+    `
+    node.style.display = "unset"
+    parent.appendChild(node)
+    
+    dragElement(document.getElementById(node.id))
+    makeResizableDiv(node.id)
+  }
+
   return (
     <div className="App">
       <header className="App-header">
@@ -216,13 +243,20 @@ const PdfComponent = ({ src, width, height }) => {
             return <span key={indx} onClick={_ => setSignature(result)}>Signature {indx+1}</span>
           })}
           <button onClick={() => printLocation()}>Print</button>
+          <div style={{marginTop:50}}>
+            <span onClick={_ => addElement("signature")}>Signature</span>
+            <span onClick={_ => "init"}>Initial</span>
+          </div>
         </div>
         <div className="content">
             <div className="drop-area">
-              <div ref={dragableEl} className="resizable dragable">
+              <div ref={dragableEl} className="resizable dragable" id="resizable">
                 <div className="resizers">
                   <img className="img-wrapper" src={signature}/>
                   <div className="resizer bottom-right"></div>
+                  <div className='resizer-close top-right'>
+                    <span>x</span>
+                  </div>
                 </div>
               </div>
             </div>
