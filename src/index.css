@@ -1,0 +1,138 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+    monospace;
+}
+
+.left-container {
+  display: flex;
+  flex: 1 1 0%;
+  background: blueviolet;
+  flex-direction: column;
+}
+.left-container span {
+  margin:5px 10px;
+  padding: 10px;
+  cursor: pointer;
+  background-color: #FFF;
+
+}
+
+.content{
+  position: relative;
+}
+ 
+.prev-btn{
+  width: 50px;
+  height: 50px;
+  background: red;
+  position: absolute;
+ 
+}
+.next-btn{
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  background: blue;
+}
+.left-0{
+  left: 0;
+}
+.right-0{
+  right: 0;
+}
+
+.drop-area {
+  width: 100%;
+  height: 100%;
+  /* background: yellow; */
+  position: absolute;
+  overflow: hidden;
+}
+
+#dragableEl {
+  position: absolute;
+  z-index: 9;
+  text-align: center;
+  background-color: #2196F3;
+  padding: 10px;
+  /* overflow: auto;
+  resize: both; */
+}
+
+#dragableEl span {
+  /* padding: 10px; */
+  cursor: move;
+  z-index: 10;
+  color: #fff;
+}
+
+#dragableEl{
+  display: none;
+  top:50px;
+  left:390px;
+}
+
+.wrapper-page-btn{
+  width: 300px;
+  height: 80px;
+  position: relative;
+}
+
+.resizer-wrapper{
+  width: 300px;
+  height: 300px;
+  background: red;
+  /* overflow: auto; */
+  /* resize: both; */
+  margin: 10px;
+  position: relative;
+}
+
+
+
+/* Resizeable class */
+.resizable {
+  background: white;
+  width: 100px;
+  height: 100px;
+  position: absolute;
+  top: 100px;
+  left: 100px;
+}
+
+.resizable .resizers{
+  width: 100%;
+  height: 100%;
+  border: 3px solid #4286f4;
+  box-sizing: border-box;
+}
+
+.resizable .resizers .resizer{
+  width: 10px;
+  height: 10px;
+  border-radius: 50%; /*magic to turn square into circle*/
+  background: white;
+  border: 3px solid #4286f4;
+  position: absolute;
+}
+
+.resizable .resizers .resizer.bottom-right {
+  right: -5px;
+  bottom: -5px;
+  cursor: nwse-resize;
+}
+
+.img-wrapper{
+  width: 100%;
+  height: 100%;
+}
