@@ -6,7 +6,7 @@ import withWindowSize from "./withWindowSize"
 const PdfComponent = ({ src, width, height }) => {
   const canvasRef = useRef(null)
   const dragableEl = useRef(null)
-  const [signatureProps, setPosition] = useState({x:120,y:160,width:100,height:100})
+  const [signatureProps, setPosition] = useState({x:100,y:100,width:100,height:100})
   const [dataSignature, setDataSignature] = useState([])
   const [signature, setSign] = useState("")
   const [signatureData, setData] = useState([
@@ -76,7 +76,12 @@ const PdfComponent = ({ src, width, height }) => {
       elmnt.style.top = (elmnt.offsetTop - pos2) + "px"
       elmnt.style.left = (elmnt.offsetLeft - pos1) + "px"
 
-      setPosition({x:elmnt.offsetLeft,y:elmnt.offsetTop})
+      setPosition({
+        x:elmnt.offsetLeft,
+        y:elmnt.offsetTop,
+        width:elmnt.offsetWidth,
+        height:elmnt.offsetHeight
+      })
     }
 
     function cancleDragElement() {
@@ -141,6 +146,14 @@ const PdfComponent = ({ src, width, height }) => {
     const stopResize = _ => {
       window.removeEventListener('mousemove', resize)
       dragElement(dragableEl.current)
+      
+      let element = dragableEl.current
+      setPosition({
+        x:element.offsetLeft,
+        y:element.offsetTop,
+        width:element.offsetWidth,
+        height:element.offsetHeight
+      })
     }
   
   }
@@ -173,9 +186,12 @@ const PdfComponent = ({ src, width, height }) => {
     const context = canvas.getContext('2d');
     // context.font = "30px arial"
     // context.fillText("Here",signatureProps.x,signatureProps.y)
+    console.log(signatureProps.width)
     var img = new Image;
-    img.src = "http://www.best-signature.com/wp-content/uploads/2017/01/e20_2.jpg";
-    context.drawImage(img, signatureProps.x, signatureProps.y, 300, 300);
+    img.src = signature
+    context.drawImage(img, signatureProps.x, signatureProps.y, signatureProps.width,  signatureProps.height);
+    let element = document.querySelector(".resizable")
+    element.style.display = "none"
  }
  
   const next = _ => {
