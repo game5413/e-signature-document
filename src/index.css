@@ -108,6 +108,7 @@ code {
   position: absolute;
   top: 100px;
   left: 100px;
+  display: none;
 }
 
 .resizable .resizers{

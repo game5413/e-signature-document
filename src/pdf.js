@@ -6,7 +6,6 @@ import withWindowSize from "./withWindowSize"
 const PdfComponent = ({ src, width, height }) => {
   const canvasRef = useRef(null)
   const dragableEl = useRef(null)
-  const triggerEl = useRef(null)
   const [signaturePosition, setPosition] = useState({x:0,y:0})
   const [dataSignature, setDataSignature] = useState([])
   const [signature, setSign] = useState("")
@@ -33,17 +32,20 @@ const PdfComponent = ({ src, width, height }) => {
     makeResizableDiv('.resizable')
   }, [src]);
  
-
-  //set signature text
-  const setSignature = param => {
-    setSign(param)
-    console.log(param)
-    // let element = document.querySelector("#dragableEl")
-    // element.style.display = "unset"
-    // element.childNodes[0].innerHTML = param
+  /**
+   * [Set signature image to display]
+   * @param {[data]} => data image to display 
+  */
+  const setSignature = data => {
+    setSign(data)
+    let element = document.querySelector(".resizable")
+    element.style.display = "unset"
   }
 
-  //Make the DIV element draggagle:
+  /**
+   * [Make the DIV element draggagle]
+   * @param {[elmnt]} => node element 
+  */
   const dragElement = elmnt => {
     let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
     elmnt.onmousedown = dragMouseDown
@@ -54,7 +56,7 @@ const PdfComponent = ({ src, width, height }) => {
       // get the mouse cursor position at startup:
       pos3 = e.clientX
       pos4 = e.clientY
-      document.onmouseup = closeDragElement
+      document.onmouseup = cancleDragElement
       // call a function whenever the cursor moves:
       document.onmousemove = elementDrag
     }
@@ -62,80 +64,85 @@ const PdfComponent = ({ src, width, height }) => {
     function elementDrag(e) {
       e = e || window.event
       e.preventDefault()
-      // calculate the new cursor position:
+      // calculate the new cursor position
       pos1 = pos3 - e.clientX
       pos2 = pos4 - e.clientY
       pos3 = e.clientX
       pos4 = e.clientY
-      // set the element's new position:
+      // set the element's new position
       elmnt.style.top = (elmnt.offsetTop - pos2) + "px"
       elmnt.style.left = (elmnt.offsetLeft - pos1) + "px"
       setPosition({x:elmnt.offsetLeft,y:elmnt.offsetTop})
     }
 
-    function closeDragElement() {
-      //stop moving when mouse button is released
+    function cancleDragElement() {
+      // stop moving when mouse is released
       document.onmouseup = null
       document.onmousemove = null
     }
   }
 
-  const next = _ => {
-    console.log("NEXT")
-    PdfGenerator.nextPage()
-  }
-
-  //Make the DIV element resizeable
-  const makeResizableDiv = div => {
-    const element = document.querySelector(div);
-    const resizers = document.querySelectorAll(div + ' .resizer')
+  /**
+   * [Make the DIV element resizeable]
+   * @param {[elmnt]} => node element 
+  */
+  const makeResizableDiv = elmnt => {
+    const element = document.querySelector(elmnt)
+    const resizers = document.querySelectorAll(elmnt + ' .resizer')
     const minimum_size = 20;
     let original_width = 0;
     let original_height = 0;
     let original_mouse_x = 0;
     let original_mouse_y = 0;
-    for (let i = 0;i < resizers.length; i++) {
-      const currentResizer = resizers[i];
-      currentResizer.addEventListener('mousedown', function(e) {
-        e.preventDefault()
-        original_width = parseFloat(getComputedStyle(element, null).getPropertyValue('width').replace('px', ''));
-        original_height = parseFloat(getComputedStyle(element, null).getPropertyValue('height').replace('px', ''));
-        original_mouse_x = e.pageX;
-        original_mouse_y = e.pageY;
-        window.addEventListener('mousemove', resize)
-        window.addEventListener('mouseup', stopResize)
-      })
-      
-      const resize = e => {
-        //Cancle the dragable function
-        dragableEl.current.onmousedown = null
-        document.onmouseup = null
-        document.onmousemove = null
+ 
+    const currentResizer = resizers[0];
+    currentResizer.addEventListener('mousedown', function(e) {
+      e.preventDefault()
+      original_width = parseFloat(getComputedStyle(element, null).getPropertyValue('width').replace('px', ''));
+      original_height = parseFloat(getComputedStyle(element, null).getPropertyValue('height').replace('px', ''));
+      original_mouse_x = e.pageX;
+      original_mouse_y = e.pageY;
+      window.addEventListener('mousemove', resize)
+      window.addEventListener('mouseup', stopResize)
+    })
+    
+    /**
+     * [resizing the element]
+     * @param {[node]} => mousemove node element property
+     */
+    const resize = node => {
+      // cancle the dragable function
+      dragableEl.current.onmousedown = null
+      document.onmouseup = null
+      document.onmousemove = null
 
-        //Make the div resizeable
-        const width = original_width + (e.pageX - original_mouse_x);
-        const height = original_height + (e.pageY - original_mouse_y)
-        if (width > minimum_size) {
-          element.style.width = width + 'px'
-        }
-        if (height > minimum_size) {
-          element.style.height = height + 'px'
-        }
+      // calculate the resize element
+      const width = original_width + (node.pageX - original_mouse_x);
+      const height = original_height + (node.pageY - original_mouse_y)
+      if (width > minimum_size) {
+        element.style.width = width + 'px'
       }
-      
-      /**
-       * [Stop resizing when onMouseLeave]
-       * @return {[void]}
-       * @callback {[func]} dragElement
-       */
-      const stopResize = _ => {
-        window.removeEventListener('mousemove', resize)
-        dragElement(dragableEl.current)
+      if (height > minimum_size) {
+        element.style.height = height + 'px'
       }
     }
+    
+    /**
+     * [Stop resizing when onMouseLeave]
+     * @return {[void]}
+     * @callback {[func]} dragElement
+     */
+    const stopResize = _ => {
+      window.removeEventListener('mousemove', resize)
+      dragElement(dragableEl.current)
+    }
+  
   }
   
- 
+  const next = _ => {
+    console.log("NEXT")
+    PdfGenerator.nextPage()
+  }
 
   return (
     <div className="App">
@@ -143,10 +150,10 @@ const PdfComponent = ({ src, width, height }) => {
         <p>
           Create <code>e-signed document</code> and save.
         </p>
-       <div className="wrapper-page-btn">
-        <div className="prev-btn"></div>
-        <div className="next-btn right-0" onClick={() => next()}></div>
-       </div>
+        <div className="wrapper-page-btn">
+          <div className="prev-btn"></div>
+          <div className="next-btn right-0" onClick={() => next()}></div>
+        </div>
       </header>
 
       <div style={{display: "flex", flexDirection: "row", height: '100%', overflow: "hidden"}}>
