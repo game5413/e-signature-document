@@ -6,7 +6,7 @@ import withWindowSize from "./withWindowSize"
 const PdfComponent = ({ src, width, height }) => {
   const canvasRef = useRef(null)
   const dragableEl = useRef(null)
-  const [signaturePosition, setPosition] = useState({x:0,y:0})
+  const [signatureProps, setPosition] = useState({x:120,y:160,width:100,height:100})
   const [dataSignature, setDataSignature] = useState([])
   const [signature, setSign] = useState("")
   const [signatureData, setData] = useState([
@@ -20,8 +20,8 @@ const PdfComponent = ({ src, width, height }) => {
       await PdfGenerator.loadDocument(src)
       const viewport = PdfGenerator.setViewPort({ scale: 1.5 })
       const canvas = canvasRef.current;
-
       const context = canvas.getContext('2d');
+
       canvas.height = viewport.height;
       canvas.width = viewport.width;
       await PdfGenerator.render(context, viewport)
@@ -30,6 +30,9 @@ const PdfComponent = ({ src, width, height }) => {
     fetchPdf();
     dragElement(dragableEl.current)
     makeResizableDiv('.resizable')
+
+    let wrapper = document.querySelector(".drop-area")
+    wrapper.addEventListener("mousemove", _ => cancleOverflowing(wrapper)) 
   }, [src]);
  
   /**
@@ -72,6 +75,7 @@ const PdfComponent = ({ src, width, height }) => {
       // set the element's new position
       elmnt.style.top = (elmnt.offsetTop - pos2) + "px"
       elmnt.style.left = (elmnt.offsetLeft - pos1) + "px"
+
       setPosition({x:elmnt.offsetLeft,y:elmnt.offsetTop})
     }
 
@@ -89,7 +93,7 @@ const PdfComponent = ({ src, width, height }) => {
   const makeResizableDiv = elmnt => {
     const element = document.querySelector(elmnt)
     const resizers = document.querySelectorAll(elmnt + ' .resizer')
-    const minimum_size = 20;
+    const maximum_size = 300;
     let original_width = 0;
     let original_height = 0;
     let original_mouse_x = 0;
@@ -119,10 +123,12 @@ const PdfComponent = ({ src, width, height }) => {
       // calculate the resize element
       const width = original_width + (node.pageX - original_mouse_x);
       const height = original_height + (node.pageY - original_mouse_y)
-      if (width > minimum_size) {
+      
+      // max width,height 300px
+      if (width < maximum_size) {
         element.style.width = width + 'px'
-      }
-      if (height > minimum_size) {
+      } 
+      if (height < maximum_size) {
         element.style.height = height + 'px'
       }
     }
@@ -138,7 +144,40 @@ const PdfComponent = ({ src, width, height }) => {
     }
   
   }
-  
+
+  /**
+   * [Prevent overflowing the canvas]
+   * @param {[wrapper]} => node element 
+  */
+  const cancleOverflowing = wrapper => {
+    let child = wrapper.childNodes[0]
+    child.onmouseup = () => {
+      let rect1 = child.getBoundingClientRect()
+      let rect2 = wrapper.getBoundingClientRect()
+      var isOverflow = (rect1.left < rect2.left || rect1.right > rect2.right ||rect1.top < rect2.top || rect1.bottom > rect2.bottom)
+
+      if(isOverflow) {
+        child.style.transition = "all .5s"
+        child.style.left = "120px"
+        child.style.top = "150px"
+        setTimeout(() => {
+          child.style.transition = "none"
+        }, 500);
+      }
+    }
+  }
+
+
+  function printLocation(params) {
+    const canvas = canvasRef.current;
+    const context = canvas.getContext('2d');
+    // context.font = "30px arial"
+    // context.fillText("Here",signatureProps.x,signatureProps.y)
+    var img = new Image;
+    img.src = "http://www.best-signature.com/wp-content/uploads/2017/01/e20_2.jpg";
+    context.drawImage(img, signatureProps.x, signatureProps.y, 300, 300);
+ }
+ 
   const next = _ => {
     console.log("NEXT")
     PdfGenerator.nextPage()
@@ -161,6 +200,7 @@ const PdfComponent = ({ src, width, height }) => {
           {signatureData.map((result,indx) => {
             return <span key={indx} onClick={_ => setSignature(result)}>Signature {indx+1}</span>
           })}
+          <button onClick={() => printLocation()}>Print</button>
         </div>
         <div className="content">
             <div className="drop-area">
