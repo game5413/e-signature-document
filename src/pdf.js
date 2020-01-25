@@ -4,6 +4,7 @@ import PdfGenerator from "./PdfGenerator"
 import withWindowSize from "./withWindowSize"
 import MakeResizableDiv from './resizer'
 import MakeDraggableDiv from './draggable'
+import {preventOverflow,setActiveClass} from "./adjustingUi"
 
 const PdfComponent = ({ src, width, height }) => {
   const canvasRef = useRef(null)
@@ -32,33 +33,10 @@ const PdfComponent = ({ src, width, height }) => {
 
     let wrapper = document.querySelector(".drop-area")
     let abandoned = document.querySelector(".abandoned-wrapper")
-    wrapper.onmousemove =  _ => cancleOverflowing(wrapper)
+    wrapper.onmousemove =  _ => preventOverflow(wrapper)
     abandoned.onclick = _ => setActiveClass("removeall")
+    console.log(preventOverflow)
   }, [src]);
- 
-  /**
-   * [Prevent overflowing the canvas]
-   * @param {[wrapper]} => node element 
-  */
-  const cancleOverflowing = wrapper => {
-    for (let index = 0; index < wrapper.childNodes.length; index++) {
-      let child = wrapper.childNodes[index]
-      child.onmouseup = () => {
-        let rect1 = child.getBoundingClientRect()
-        let rect2 = wrapper.getBoundingClientRect()
-        var isOverflow = (rect1.left < rect2.left || rect1.right > rect2.right ||rect1.top < rect2.top || rect1.bottom > rect2.bottom)
-  
-        if(isOverflow) {
-          child.style.transition = "all .5s"
-          child.style.left = "120px"
-          child.style.top = "150px"
-          setTimeout(() => {
-            child.style.transition = "none"
-          }, 500);
-        }
-      } 
-    }
-  }
 
    /**
    * [Add new DnD & resize element]
@@ -67,7 +45,6 @@ const PdfComponent = ({ src, width, height }) => {
     let parent = document.querySelector(".drop-area")
     let randomId = Math.random().toString(36).substring(7);
     let node = document.createElement("div")
-
     // remove prev element active class
     setActiveClass("removeall")
 
@@ -136,33 +113,6 @@ const PdfComponent = ({ src, width, height }) => {
       node: node
     })
   }
-
-  /**
-   * [Set & unset class acrive]
-   * @param {[type]} => node element || type of reset element  
-   */
-  const setActiveClass = elmnt => {
-    let parent = document.querySelector(".drop-area")
-    // remove active class
-    if(elmnt === "removeall") {
-      for (let i = 1; i < parent.childNodes.length; i++) {
-        parent.childNodes[i].classList.remove("active")
-        parent.childNodes[i].childNodes[1].childNodes[3].style.display = "none"
-        parent.childNodes[i].childNodes[1].childNodes[5].style.display = "none"
-      }
-    } else {
-      for (let i = 1; i < parent.childNodes.length; i++) {
-        parent.childNodes[i].classList.remove("active")
-        parent.childNodes[i].childNodes[1].childNodes[3].style.display = "none"
-        parent.childNodes[i].childNodes[1].childNodes[5].style.display = "none"
-      }
-
-      // set active class to current clicked element 
-      elmnt.classList.add("active")
-      elmnt.childNodes[1].childNodes[3].style.display = "unset"
-      elmnt.childNodes[1].childNodes[5].style.display = "unset"
-    }
-  }
   
   /**
    * [Remove & destroy data DnD Resize and element]
@@ -190,11 +140,6 @@ const PdfComponent = ({ src, width, height }) => {
     // console.log(element)
     element.style.display = "none"
   }
-
-  const next = _ => {
-    console.log("NEXT")
-    PdfGenerator.nextPage()
-  }
  
   return (
     <div className="App">
@@ -204,7 +149,7 @@ const PdfComponent = ({ src, width, height }) => {
         </p>
         <div className="wrapper-page-btn">
           <div className="prev-btn"></div>
-          <div className="next-btn right-0" onClick={() => next()}></div>
+          <div className="next-btn right-0" onClick={() => console.log("NEXT")}></div>
         </div>
       </header>
 
