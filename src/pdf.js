@@ -2,6 +2,7 @@ import React, { useRef, useEffect,useState } from 'react';
 import PropTypes from 'prop-types';
 import PdfGenerator from "./PdfGenerator"
 import withWindowSize from "./withWindowSize"
+import MakeResizableDiv from './resizer'
 
 const PdfComponent = ({ src, width, height }) => {
   const canvasRef = useRef(null)
@@ -89,80 +90,6 @@ const PdfComponent = ({ src, width, height }) => {
   }
 
   /**
-   * [Make the DIV element resizeable]
-   * @param {[elmnt]} => node element 
-  */
-  const makeResizableDiv = elmnt => {
-    const element = document.getElementById(elmnt)
-    const maximum_size = 300;
-    let original_width = 0;
-    let original_height = 0;
-    let original_mouse_x = 0;
-    let original_mouse_y = 0;
- 
-    let currentResizer = ""
-    currentResizer = element.childNodes[1].childNodes[3];
-    currentResizer.addEventListener('mousedown', function(e) {
-      e.preventDefault()
-      original_width = parseFloat(getComputedStyle(element, null).getPropertyValue('width').replace('px', ''));
-      original_height = parseFloat(getComputedStyle(element, null).getPropertyValue('height').replace('px', ''));
-      original_mouse_x = e.pageX;
-      original_mouse_y = e.pageY;
-      
-      window.addEventListener('mousemove', resize)
-      window.addEventListener('mouseup', stopResize)
-    })
-    
-    /**
-     * [resizing the element]
-     * @param {[node]} => mousemove node element property
-     */
-    const resize = node => {
-      // cancle the dragable function
-      document.onmouseup = null
-      document.onmousemove = null
-
-      // calculate the resize element
-      const width = original_width + (node.pageX - original_mouse_x);
-      const height = original_height + (node.pageY - original_mouse_y)
-      
-      // max width,height 300px
-      if (width < maximum_size) {
-        element.style.width = width + 'px'
-      } 
-      if (height < maximum_size) {
-        element.style.height = height + 'px'
-      }
-    }
-    
-    /**
-     * [Stop resizing when onMouseLeave]
-     * @return {[void]}
-     * @param {[node]} => node property
-     */
-    const stopResize = node => {
-      window.removeEventListener('mousemove', resize)
-      if(element) {
-        // set data DnD Resize element
-        dataDropElements.filter(res => {
-          if(res.id === element.id) {
-            res.x = element.offsetLeft
-            res.y = element.offsetTop
-            res.width = element.offsetWidth
-            res.height = element.offsetHeight
-          }
-        })
-        setPosition({
-          x:element.offsetLeft,
-          y:element.offsetTop,
-          width:element.offsetWidth,
-          height:element.offsetHeight
-        })
-      }
-    }
-  }
-
-  /**
    * [Prevent overflowing the canvas]
    * @param {[wrapper]} => node element 
   */
@@ -217,7 +144,24 @@ const PdfComponent = ({ src, width, height }) => {
     
     // init drag and resize and set data DnD
     dragElement(document.getElementById(node.id))
-    makeResizableDiv(node.id)
+    let resizeElement = new MakeResizableDiv(node.id)
+    resizeElement.setResizable(callback => {
+      dataDropElements.filter(res => {
+        if(res.id === callback.id) {
+          res.x = callback.offsetLeft
+          res.y = callback.offsetTop
+          res.width = callback.offsetWidth
+          res.height = callback.offsetHeight
+        }
+      })
+      setPosition({
+        x:callback.offsetLeft,
+        y:callback.offsetTop,
+        width:callback.offsetWidth,
+        height:callback.offsetHeight
+      })
+    })    
+
     dataDropElements.push({
       id: node.id,
       x:100,
@@ -279,7 +223,7 @@ const PdfComponent = ({ src, width, height }) => {
     img.src = signature
     context.drawImage(img, signatureProps.x, signatureProps.y, signatureProps.width,  signatureProps.height);
     let element = document.querySelector(".resizable.dragable.active")
-    console.log(element)
+    // console.log(element)
     element.style.display = "none"
   }
 
