@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import PdfGenerator from "./PdfGenerator"
 import withWindowSize from "./withWindowSize"
 import MakeResizableDiv from './resizer'
+import MakeDraggableDiv from './draggable'
 
 const PdfComponent = ({ src, width, height }) => {
   const canvasRef = useRef(null)
@@ -35,60 +36,6 @@ const PdfComponent = ({ src, width, height }) => {
     abandoned.onclick = _ => setActiveClass("removeall")
   }, [src]);
  
-  /**
-   * [Make the DIV element draggagle]
-   * @param {[elmnt]} => node element 
-  */
-  const dragElement = elmnt => {
-    let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-    elmnt.onmousedown = dragMouseDown
-
-    function dragMouseDown(e) {
-      e = e || window.event
-      e.preventDefault()
-      // get the mouse cursor position at startup:
-      pos3 = e.clientX
-      pos4 = e.clientY
-      document.onmouseup = cancleDragElement
-      // call a function whenever the cursor moves:
-      document.onmousemove = elementDrag
-    }
-
-    function elementDrag(e) {
-      e = e || window.event
-      e.preventDefault()
-      // calculate the new cursor position
-      pos1 = pos3 - e.clientX
-      pos2 = pos4 - e.clientY
-      pos3 = e.clientX
-      pos4 = e.clientY
-      // set the element's new position
-      elmnt.style.top = (elmnt.offsetTop - pos2) + "px"
-      elmnt.style.left = (elmnt.offsetLeft - pos1) + "px"
-      // set data drop element  
-      dataDropElements.filter(res => {
-        if(res.id === elmnt.id) {
-          res.x = elmnt.offsetLeft
-          res.y = elmnt.offsetTop
-          res.width = elmnt.offsetWidth
-          res.height = elmnt.offsetHeight
-        }
-      })
-      setPosition({
-        x:elmnt.offsetLeft,
-        y:elmnt.offsetTop,
-        width:elmnt.offsetWidth,
-        height:elmnt.offsetHeight
-      })
-    }
-
-    function cancleDragElement() {
-      // stop moving when mouse is released
-      document.onmouseup = null
-      document.onmousemove = null
-    }
-  }
-
   /**
    * [Prevent overflowing the canvas]
    * @param {[wrapper]} => node element 
@@ -142,8 +89,26 @@ const PdfComponent = ({ src, width, height }) => {
     node.childNodes[1].onmousedown = _ => setActiveClass(node)
     node.childNodes[1].childNodes[5].onclick = _ => removeSignatureElement(node)
     
-    // init drag and resize and set data DnD
-    dragElement(document.getElementById(node.id))
+    // init draggable element and set data while dragging element
+    // dragElement(document.getElementById(node.id))
+    let draggableElement = new MakeDraggableDiv(node.id)
+    draggableElement.setDraggable(callback => {
+      dataDropElements.filter(res => {
+        if(res.id === callback.id) {
+          res.x = callback.offsetLeft
+          res.y = callback.offsetTop
+          res.width = callback.offsetWidth
+          res.height = callback.offsetHeight
+        }
+      })
+      setPosition({
+        x:callback.offsetLeft,
+        y:callback.offsetTop,
+        width:callback.offsetWidth,
+        height:callback.offsetHeight
+      })
+    })
+    // init resize element and set data while resizing element
     let resizeElement = new MakeResizableDiv(node.id)
     resizeElement.setResizable(callback => {
       dataDropElements.filter(res => {
@@ -214,7 +179,6 @@ const PdfComponent = ({ src, width, height }) => {
       elmnt.remove()
     }, 500);
   }
-
 
   function printLocation(params) {
     const canvas = canvasRef.current;
