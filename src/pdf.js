@@ -2,9 +2,9 @@ import React, { useRef, useEffect,useState } from 'react';
 import PropTypes from 'prop-types';
 import PdfGenerator from "./PdfGenerator"
 import withWindowSize from "./withWindowSize"
-import MakeResizableDiv from './resizer'
-import MakeDraggableDiv from './draggable'
-import {preventOverflow,setActiveClass} from "./adjustingUi"
+import MakeResizableDiv from './Functions/resizer'
+import MakeDraggableDiv from './Functions/draggable'
+import {preventOverflow,setActiveClass} from "./Functions/adjustingUi"
 
 const PdfComponent = ({ src, width, height }) => {
   const canvasRef = useRef(null)
