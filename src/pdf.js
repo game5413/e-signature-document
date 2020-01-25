@@ -5,7 +5,6 @@ import withWindowSize from "./withWindowSize"
 
 const PdfComponent = ({ src, width, height }) => {
   const canvasRef = useRef(null)
-  const dragableEl = useRef(null)
   const [signatureProps, setPosition] = useState({x:100,y:100,width:100,height:100})
   const [dataSignature, setDataSignature] = useState([])
   const [signature, setSign] = useState("")
@@ -27,25 +26,14 @@ const PdfComponent = ({ src, width, height }) => {
       canvas.width = viewport.width;
       await PdfGenerator.render(context, viewport)
     };
-
     fetchPdf();
-    dragElement(dragableEl.current)
-    makeResizableDiv(dragableEl.current.id,"didmount")
 
     let wrapper = document.querySelector(".drop-area")
-    wrapper.addEventListener("mousemove", _ => cancleOverflowing(wrapper)) 
+    let abandoned = document.querySelector(".abandoned-wrapper")
+    wrapper.onmousemove =  _ => cancleOverflowing(wrapper)
+    abandoned.onclick = _ => setActiveClass("removeall")
   }, [src]);
  
-  /**
-   * [Set signature image to display]
-   * @param {[data]} => data image to display 
-  */
-  const setSignature = data => {
-    setSign(data)
-    // let element = document.querySelector(".resizable")
-    // element.style.display = "unset"
-  }
-
   /**
    * [Make the DIV element draggagle]
    * @param {[elmnt]} => node element 
@@ -134,7 +122,6 @@ const PdfComponent = ({ src, width, height }) => {
      */
     const resize = node => {
       // cancle the dragable function
-      dragableEl.current.onmousedown = null
       document.onmouseup = null
       document.onmousemove = null
 
@@ -168,16 +155,7 @@ const PdfComponent = ({ src, width, height }) => {
           res.height = elSelection.offsetHeight
         }
       })
-
-      let element = dragableEl.current
-      setPosition({
-        x:element.offsetLeft,
-        y:element.offsetTop,
-        width:element.offsetWidth,
-        height:element.offsetHeight
-      })
     }
-  
   }
 
   /**
@@ -226,6 +204,14 @@ const PdfComponent = ({ src, width, height }) => {
     let parent = document.querySelector(".drop-area")
     let randomId = Math.random().toString(36).substring(7);
     let node = document.createElement("div")
+
+    // remove prev element active class
+    for (let i = 1; i < parent.childNodes.length; i++) {
+      parent.childNodes[i].classList.remove("active")
+      parent.childNodes[i].childNodes[1].childNodes[3].style.display = "none"
+      parent.childNodes[i].childNodes[1].childNodes[5].style.display = "none"
+    }
+
     node.id = randomId
     node.className = "resizable dragable active"
     node.innerHTML = `
@@ -240,7 +226,8 @@ const PdfComponent = ({ src, width, height }) => {
     node.style.display = "unset"
     parent.appendChild(node)
 
-    // add event click on close btn
+    // add event click on close btn [selcetor => .resizers]
+    node.childNodes[1].onmousedown = _ => setActiveClass(node)
     node.childNodes[1].childNodes[5].onclick = _ => removeSignatureElement(node)
     
     //init drag and resize
@@ -255,6 +242,29 @@ const PdfComponent = ({ src, width, height }) => {
       node: node
     })
   }
+
+  const setActiveClass = elmnt => {
+    let parent = document.querySelector(".drop-area")
+    // remove active class
+    if(elmnt === "removeall") {
+      for (let i = 1; i < parent.childNodes.length; i++) {
+        parent.childNodes[i].classList.remove("active")
+        parent.childNodes[i].childNodes[1].childNodes[3].style.display = "none"
+        parent.childNodes[i].childNodes[1].childNodes[5].style.display = "none"
+      }
+    } else {
+      for (let i = 1; i < parent.childNodes.length; i++) {
+        parent.childNodes[i].classList.remove("active")
+        parent.childNodes[i].childNodes[1].childNodes[3].style.display = "none"
+        parent.childNodes[i].childNodes[1].childNodes[5].style.display = "none"
+      }
+      // set active class to current clicked element 
+      elmnt.classList.add("active")
+      elmnt.childNodes[1].childNodes[3].style.display = "unset"
+      elmnt.childNodes[1].childNodes[5].style.display = "unset"
+    }
+    
+  }
   
   const removeSignatureElement = elmnt => {
     dataDropElements.filter((res,indx) => {
@@ -262,7 +272,10 @@ const PdfComponent = ({ src, width, height }) => {
         dataDropElements.splice(indx,1)
       }
     })
-    elmnt.remove()
+    elmnt.classList.add("remove")
+    setTimeout(() => {
+      elmnt.remove()
+    }, 500);
   }
 
   return (
@@ -280,7 +293,7 @@ const PdfComponent = ({ src, width, height }) => {
       <div style={{display: "flex", flexDirection: "row", height: '100%', overflow: "hidden"}}>
         <div className="left-container">
           {signatureData.map((result,indx) => {
-            return <span key={indx} onClick={_ => setSignature(result)}>Signature {indx+1}</span>
+            return <span key={indx} onClick={_ => setSign(result)}>Signature {indx+1}</span>
           })}
           <button onClick={() => printLocation()}>Print</button>
           <div style={{marginTop:50}}>
@@ -290,15 +303,7 @@ const PdfComponent = ({ src, width, height }) => {
         </div>
         <div className="content">
             <div className="drop-area">
-              <div ref={dragableEl} className="resizable dragable" id="resizable">
-                <div className="resizers">
-                  <img className="img-wrapper" src={signature}/>
-                  <div className="resizer bottom-right"></div>
-                  <div className='resizer-close top-right'>
-                    <span>x</span>
-                  </div>
-                </div>
-              </div>
+              <div className="abandoned-wrapper"></div>
             </div>
             <canvas ref={canvasRef} />
         </div>
