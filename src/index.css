@@ -109,6 +109,20 @@ code {
   top: 100px;
   left: 100px;
   display: none;
+  animation-name: scaledup;
+  animation-duration: .5s;
+  transform: scale(1);
+}
+@keyframes scaledup{
+  0%   {
+    transform: scale(0);
+  }
+  50%  {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 .resizable .resizers{
@@ -145,10 +159,11 @@ code {
   cursor: pointer;
 }
 .resizer-close span {
-  top: -8px;
+  top: -9px;
   position: absolute;
-  left: 1.5px;
+  left: 1px;
   font-weight: bold;
+  color:#fff
 }
  
 .img-wrapper{

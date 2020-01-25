@@ -14,7 +14,8 @@ const PdfComponent = ({ src, width, height }) => {
     "https://image.winudf.com/v2/image1/Y29tLnlva29hcHB4LnNpZ25hdHVyZW1ha2VyX3NjcmVlbl8wXzE1NTc1MTA4NjhfMDIw/screen-0.jpg?fakeurl=1&type=.jpg",
     "http://www.best-signature.com/wp-content/uploads/2017/01/e20_2.jpg"
   ])
-  
+  const [dataDropElements, setElements] =  useState([])
+
   useEffect(() => {
     const fetchPdf = async () => {
       await PdfGenerator.loadDocument(src)
@@ -41,8 +42,8 @@ const PdfComponent = ({ src, width, height }) => {
   */
   const setSignature = data => {
     setSign(data)
-    let element = document.querySelector(".resizable")
-    element.style.display = "unset"
+    // let element = document.querySelector(".resizable")
+    // element.style.display = "unset"
   }
 
   /**
@@ -75,7 +76,15 @@ const PdfComponent = ({ src, width, height }) => {
       // set the element's new position
       elmnt.style.top = (elmnt.offsetTop - pos2) + "px"
       elmnt.style.left = (elmnt.offsetLeft - pos1) + "px"
-
+      // set data drop element  
+      dataDropElements.filter(res => {
+        if(res.id === elmnt.id) {
+          res.x = elmnt.offsetLeft
+          res.y = elmnt.offsetTop
+          res.width = elmnt.offsetWidth
+          res.height = elmnt.offsetHeight
+        }
+      })
       setPosition({
         x:elmnt.offsetLeft,
         y:elmnt.offsetTop,
@@ -145,12 +154,21 @@ const PdfComponent = ({ src, width, height }) => {
     /**
      * [Stop resizing when onMouseLeave]
      * @return {[void]}
-     * @callback {[func]} dragElement
+     * @param {[node]} => node property
      */
-    const stopResize = _ => {
+    const stopResize = node => {
       window.removeEventListener('mousemove', resize)
-      dragElement(dragableEl.current)
-      
+      let elSelection = node.path[2]
+      // set data drop element
+      dataDropElements.filter(res => {
+        if(res.id === elSelection.id) {
+          res.x = elSelection.offsetLeft
+          res.y = elSelection.offsetTop
+          res.width = elSelection.offsetWidth
+          res.height = elSelection.offsetHeight
+        }
+      })
+
       let element = dragableEl.current
       setPosition({
         x:element.offsetLeft,
@@ -223,13 +241,29 @@ const PdfComponent = ({ src, width, height }) => {
     parent.appendChild(node)
 
     // add event click on close btn
-    node.childNodes[1].childNodes[5].onclick = _ => node.remove()
+    node.childNodes[1].childNodes[5].onclick = _ => removeSignatureElement(node)
     
     //init drag and resize
     dragElement(document.getElementById(node.id))
     makeResizableDiv(node.id)
+    dataDropElements.push({
+      id: node.id,
+      x:100,
+      y:100,
+      width:100,
+      height:100,
+      node: node
+    })
   }
- 
+  
+  const removeSignatureElement = elmnt => {
+    dataDropElements.filter((res,indx) => {
+      if(res.id === elmnt.id) {
+        dataDropElements.splice(indx,1)
+      }
+    })
+    elmnt.remove()
+  }
 
   return (
     <div className="App">
@@ -251,7 +285,7 @@ const PdfComponent = ({ src, width, height }) => {
           <button onClick={() => printLocation()}>Print</button>
           <div style={{marginTop:50}}>
             <span onClick={_ => addSignatureElement("signature")}>Signature</span>
-            <span onClick={_ => "init"}>Initial</span>
+            <span onClick={_ => console.log(dataDropElements)}>Initial</span>
           </div>
         </div>
         <div className="content">
