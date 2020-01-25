@@ -9,7 +9,7 @@ const PdfComponent = ({ src, width, height }) => {
   const [dataSignature, setDataSignature] = useState([])
   const [signature, setSign] = useState("")
   const [signatureData, setData] = useState([
-    "https://upload.wikimedia.org/wikipedia/commons/9/93/Signature_of_Professor_Muhammad_Yunus.svg",
+    "https://kilausenja.com/wp-content/uploads/2019/04/18-02-08-17-29-50-859_deco.jpg",
     "https://image.winudf.com/v2/image1/Y29tLnlva29hcHB4LnNpZ25hdHVyZW1ha2VyX3NjcmVlbl8wXzE1NTc1MTA4NjhfMDIw/screen-0.jpg?fakeurl=1&type=.jpg",
     "http://www.best-signature.com/wp-content/uploads/2017/01/e20_2.jpg"
   ])
@@ -112,6 +112,7 @@ const PdfComponent = ({ src, width, height }) => {
       original_height = parseFloat(getComputedStyle(element, null).getPropertyValue('height').replace('px', ''));
       original_mouse_x = e.pageX;
       original_mouse_y = e.pageY;
+      
       window.addEventListener('mousemove', resize)
       window.addEventListener('mouseup', stopResize)
     })
@@ -145,16 +146,23 @@ const PdfComponent = ({ src, width, height }) => {
      */
     const stopResize = node => {
       window.removeEventListener('mousemove', resize)
-      let elSelection = node.path[2]
-      // set data drop element
-      dataDropElements.filter(res => {
-        if(res.id === elSelection.id) {
-          res.x = elSelection.offsetLeft
-          res.y = elSelection.offsetTop
-          res.width = elSelection.offsetWidth
-          res.height = elSelection.offsetHeight
-        }
-      })
+      if(element) {
+        // set data DnD Resize element
+        dataDropElements.filter(res => {
+          if(res.id === element.id) {
+            res.x = element.offsetLeft
+            res.y = element.offsetTop
+            res.width = element.offsetWidth
+            res.height = element.offsetHeight
+          }
+        })
+        setPosition({
+          x:element.offsetLeft,
+          y:element.offsetTop,
+          width:element.offsetWidth,
+          height:element.offsetHeight
+        })
+      }
     }
   }
 
@@ -182,35 +190,16 @@ const PdfComponent = ({ src, width, height }) => {
     }
   }
 
-
-  function printLocation(params) {
-    const canvas = canvasRef.current;
-    const context = canvas.getContext('2d');
-    // context.font = "30px arial"
-    // context.fillText("Here",signatureProps.x,signatureProps.y)
-    var img = new Image;
-    img.src = signature
-    context.drawImage(img, signatureProps.x, signatureProps.y, signatureProps.width,  signatureProps.height);
-    let element = document.querySelector(".resizable")
-    element.style.display = "none"
- }
- 
-  const next = _ => {
-    console.log("NEXT")
-    PdfGenerator.nextPage()
-  }
-
-  const addSignatureElement = type => {
+   /**
+   * [Add new DnD & resize element]
+   */
+  const addSignatureElement = _ => {
     let parent = document.querySelector(".drop-area")
     let randomId = Math.random().toString(36).substring(7);
     let node = document.createElement("div")
 
     // remove prev element active class
-    for (let i = 1; i < parent.childNodes.length; i++) {
-      parent.childNodes[i].classList.remove("active")
-      parent.childNodes[i].childNodes[1].childNodes[3].style.display = "none"
-      parent.childNodes[i].childNodes[1].childNodes[5].style.display = "none"
-    }
+    setActiveClass("removeall")
 
     node.id = randomId
     node.className = "resizable dragable active"
@@ -230,7 +219,7 @@ const PdfComponent = ({ src, width, height }) => {
     node.childNodes[1].onmousedown = _ => setActiveClass(node)
     node.childNodes[1].childNodes[5].onclick = _ => removeSignatureElement(node)
     
-    //init drag and resize
+    // init drag and resize and set data DnD
     dragElement(document.getElementById(node.id))
     makeResizableDiv(node.id)
     dataDropElements.push({
@@ -243,6 +232,10 @@ const PdfComponent = ({ src, width, height }) => {
     })
   }
 
+  /**
+   * [Set & unset class acrive]
+   * @param {[type]} => node element || type of reset element  
+   */
   const setActiveClass = elmnt => {
     let parent = document.querySelector(".drop-area")
     // remove active class
@@ -258,14 +251,18 @@ const PdfComponent = ({ src, width, height }) => {
         parent.childNodes[i].childNodes[1].childNodes[3].style.display = "none"
         parent.childNodes[i].childNodes[1].childNodes[5].style.display = "none"
       }
+
       // set active class to current clicked element 
       elmnt.classList.add("active")
       elmnt.childNodes[1].childNodes[3].style.display = "unset"
       elmnt.childNodes[1].childNodes[5].style.display = "unset"
     }
-    
   }
   
+  /**
+   * [Remove & destroy data DnD Resize and element]
+   * @param {[elmnt]} => node element 
+   */
   const removeSignatureElement = elmnt => {
     dataDropElements.filter((res,indx) => {
       if(res.id === elmnt.id) {
@@ -278,6 +275,23 @@ const PdfComponent = ({ src, width, height }) => {
     }, 500);
   }
 
+
+  function printLocation(params) {
+    const canvas = canvasRef.current;
+    const context = canvas.getContext('2d');
+    var img = new Image;
+    img.src = signature
+    context.drawImage(img, signatureProps.x, signatureProps.y, signatureProps.width,  signatureProps.height);
+    let element = document.querySelector(".resizable.dragable.active")
+    console.log(element)
+    element.style.display = "none"
+  }
+
+  const next = _ => {
+    console.log("NEXT")
+    PdfGenerator.nextPage()
+  }
+ 
   return (
     <div className="App">
       <header className="App-header">
