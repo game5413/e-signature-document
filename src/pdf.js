@@ -92,7 +92,7 @@ const PdfComponent = ({ src, width, height }) => {
    * [Make the DIV element resizeable]
    * @param {[elmnt]} => node element 
   */
-  const makeResizableDiv = (elmnt,type) => {
+  const makeResizableDiv = elmnt => {
     const element = document.getElementById(elmnt)
     const maximum_size = 300;
     let original_width = 0;
@@ -101,11 +101,7 @@ const PdfComponent = ({ src, width, height }) => {
     let original_mouse_y = 0;
  
     let currentResizer = ""
-    if(type === "didmount") {
-      currentResizer = element.childNodes[0].childNodes[1]
-    } else {
-      currentResizer = element.childNodes[1].childNodes[3];
-    }
+    currentResizer = element.childNodes[1].childNodes[3];
     currentResizer.addEventListener('mousedown', function(e) {
       e.preventDefault()
       original_width = parseFloat(getComputedStyle(element, null).getPropertyValue('width').replace('px', ''));
