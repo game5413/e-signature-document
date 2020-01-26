@@ -21,7 +21,7 @@ const PdfComponent = ({ src, width, height }) => {
   useEffect(() => {
     const fetchPdf = async () => {
       await PdfGenerator.loadDocument(src)
-      const viewport = PdfGenerator.setViewPort({ scale: 1.5 })
+      const viewport = PdfGenerator.setViewPort({ scale:1.7 })
       const canvas = canvasRef.current;
       const context = canvas.getContext('2d');
 
@@ -35,9 +35,9 @@ const PdfComponent = ({ src, width, height }) => {
     let abandoned = document.querySelector(".abandoned-wrapper")
     wrapper.onmousemove =  _ => preventOverflow(wrapper)
     abandoned.onclick = _ => setActiveClass("removeall")
-    console.log(preventOverflow)
   }, [src]);
 
+ 
    /**
    * [Add new DnD & resize element]
    */
@@ -130,6 +130,30 @@ const PdfComponent = ({ src, width, height }) => {
     }, 500);
   }
 
+  const selectSignature = (param,indexEl,type) => {
+    if(type === "button") {
+      let parent = document.querySelector("#button-wrapper")
+      addSignatureElement("signature")
+      for (let i = 0; i < parent.childNodes.length; i++) {
+        if(indexEl === i) {
+          parent.childNodes[i].classList.add("btn-active")
+        } else {
+          parent.childNodes[i].classList.remove("btn-active")
+        }
+      }
+    } else {
+      let parent = document.querySelector(".left-container")
+      setSign(param)
+      for (let i = 0; i < parent.childNodes[0].childNodes.length; i++) {
+        if(indexEl === i) {
+          parent.childNodes[0].childNodes[i].classList.add("btn-active")
+        } else {
+          parent.childNodes[0].childNodes[i].classList.remove("btn-active")
+        }
+      }
+    }
+  }
+
   function printLocation(params) {
     const canvas = canvasRef.current;
     const context = canvas.getContext('2d');
@@ -155,20 +179,22 @@ const PdfComponent = ({ src, width, height }) => {
 
       <div style={{display: "flex", flexDirection: "row", height: '100%', overflow: "hidden"}}>
         <div className="left-container">
-          {signatureData.map((result,indx) => {
-            return <span key={indx} onClick={_ => setSign(result)}>Signature {indx+1}</span>
-          })}
-          <button onClick={() => printLocation()}>Print</button>
-          <div style={{marginTop:50}}>
-            <span onClick={_ => addSignatureElement("signature")}>Signature</span>
-            <span onClick={_ => console.log(dataDropElements)}>Initial</span>
+          <div className="btn-wrapper">
+            {signatureData.map((result,indx) => {
+              return <a key={indx} onClick={_ => selectSignature(result,indx,"items")}>Signature {indx+1}</a>
+            })}
+          </div>
+          <div style={{marginTop:50}} className="btn-wrapper" id="button-wrapper">
+            <a onClick={_ => selectSignature(null, 0,"button")}>Signature</a>
+            <a onClick={_ => console.log(dataDropElements)}>Initial</a>
+            <a onClick={() => printLocation()}>Instant Print</a>
           </div>
         </div>
         <div className="content">
             <div className="drop-area">
               <div className="abandoned-wrapper"></div>
             </div>
-            <canvas ref={canvasRef} />
+            <div><canvas ref={canvasRef} /></div>
         </div>
       </div>
     </div>

@@ -8,6 +8,10 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+.App-header p {
+  margin: 10px 0px;
+}
+
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
@@ -16,15 +20,32 @@ code {
 .left-container {
   display: flex;
   flex: 1 1 0%;
-  background: blueviolet;
+  background: #eceff1;
   flex-direction: column;
 }
-.left-container span {
-  margin:5px 10px;
+.btn-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+.btn-wrapper a {
+  margin:10px 10px;
   padding: 10px;
   cursor: pointer;
   background-color: #FFF;
-
+  border-radius: 3px;
+  box-shadow: 3px 5px 6px #8888;
+  transition: all .5s;
+}
+.btn-wrapper a:hover {
+  transform: translate(0px, -5px);
+  box-shadow: 3px 5px 10px #888888;
+}
+.btn-wrapper a:active{
+  transform: translate(0px, -3px);
+}
+.btn-active{
+  background-color: #282c34 !important;
+  color:#fff
 }
 
 .content{
@@ -32,16 +53,16 @@ code {
 }
  
 .prev-btn{
-  width: 50px;
-  height: 50px;
+  width: 35px;
+  height: 35px;
   background: red;
   position: absolute;
  
 }
 .next-btn{
   position: absolute;
-  width: 50px;
-  height: 50px;
+  width: 35px;
+  height: 35px;
   background: blue;
 }
 .left-0{
@@ -91,7 +112,7 @@ code {
 
 .wrapper-page-btn{
   width: 300px;
-  height: 80px;
+  height: 50px;
   position: relative;
 }
 
