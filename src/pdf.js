@@ -156,14 +156,14 @@ const PdfComponent = ({ src, width, height }) => {
   }
 
   function printLocation() {
-    const canvas = canvasRef.current;
-    const context = canvas.getContext('2d');
-    var img = new Image;
-    img.src = signature
-    context.drawImage(img, signatureProps.x, signatureProps.y, signatureProps.width,  signatureProps.height);
-    let element = document.querySelector(".resizable.dragable.active")
-    // console.log(element)
-    element.style.display = "none"
+    let parentWrapper = document.querySelector(".resizable.dragable.active")
+    let newImg = parentWrapper.childNodes[1].childNodes[1].src
+    let canvas = canvasRef.current
+    let context = canvas.getContext('2d')
+    let img = new Image
+    img.src = newImg
+    context.drawImage(img, parentWrapper.offsetLeft,parentWrapper.offsetTop, parentWrapper.offsetWidth,  parentWrapper.offsetHeight)
+    parentWrapper.style.display = "none"
   }
  
   return (
