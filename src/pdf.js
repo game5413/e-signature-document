@@ -108,9 +108,10 @@ const PdfComponent = ({ src, width, height }) => {
       id: node.id,
       x:100,
       y:100,
-      width:100,
-      height:100,
-      node: node
+      width: 100,
+      height: 100,
+      nodeEl: node,
+      signature: signature
     })
   }
   
@@ -154,7 +155,7 @@ const PdfComponent = ({ src, width, height }) => {
     }
   }
 
-  function printLocation(params) {
+  function printLocation() {
     const canvas = canvasRef.current;
     const context = canvas.getContext('2d');
     var img = new Image;
@@ -186,7 +187,7 @@ const PdfComponent = ({ src, width, height }) => {
           </div>
           <div style={{marginTop:50}} className="btn-wrapper" id="button-wrapper">
             <a onClick={_ => selectSignature(null, 0,"button")}>Signature</a>
-            <a onClick={_ => console.log(dataDropElements)}>Initial</a>
+            <a onClick={_ => console.log(dataDropElements[0].nodeEl)}>Initial</a>
             <a onClick={() => printLocation()}>Instant Print</a>
           </div>
         </div>
