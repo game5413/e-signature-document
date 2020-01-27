@@ -21,13 +21,7 @@ const PdfComponent = ({ src, width, height }) => {
   useEffect(() => {
     const fetchPdf = async () => {
       await PdfGenerator.loadDocument(src)
-      const viewport = PdfGenerator.setViewPort({ scale:1.7 })
-      const canvas = canvasRef.current;
-      const context = canvas.getContext('2d');
-
-      canvas.height = viewport.height;
-      canvas.width = viewport.width;
-      await PdfGenerator.render(context, viewport)
+      await PdfGenerator.render(canvasRef.current, { scale:1.7 })
     };
     fetchPdf();
 
@@ -173,8 +167,8 @@ const PdfComponent = ({ src, width, height }) => {
           Create <code>e-signed document</code> and save.
         </p>
         <div className="wrapper-page-btn">
-          <div className="prev-btn"></div>
-          <div className="next-btn right-0" onClick={() => console.log("NEXT")}></div>
+          <div className="prev-btn" onClick={() => PdfGenerator.prevPage()}></div>
+          <div className="next-btn right-0" onClick={() => PdfGenerator.nextPage()}></div>
         </div>
       </header>
 

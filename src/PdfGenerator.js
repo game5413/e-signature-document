@@ -30,6 +30,21 @@ class PdfGenerator {
     get totalPage() {
         return this.pages
     }
+    /**
+     * [get viewport options]
+     * @return {[object]} [current viewport]
+     * */
+    get viewportOptions() {
+        return this._viewport
+    }
+    /**
+     * [get canvas element for render]
+     *
+     * @return {[element]} [current element]
+     * */
+    get canvasElement() {
+        return this._canvas
+    }
     /* SETTER */
     /**
      * [set displayed page]
@@ -50,6 +65,26 @@ class PdfGenerator {
      */
     set totalPage(total) {
         this.pages = total
+    }
+    /**
+     * [set viewport options]
+     *
+     * @param {[object]} viewport [viewport want to be saved]
+     *
+     * @return {[void]}
+     * */
+    set viewportOptions(viewport) {
+        this._viewport = viewport
+    }
+    /**
+     * [set canvas element for render]
+     *
+     * @param {[node]} viewport [viewport element]
+     *
+     * @return {[void]}
+     * */
+    set canvasElement(element) {
+        this._canvas = element
     }
 
     async loadDocument(src = "") {
@@ -77,6 +112,8 @@ class PdfGenerator {
     async loadPage() {
         try {
             this.pdf = await this.active.getPage(this.activePage)
+            this.render()
+            // this.render(this.canvasElement, this.viewportOptions)
         } catch(error) {
             console.log("loadPage -> ", error)
         }
@@ -110,19 +147,27 @@ class PdfGenerator {
 
     setViewPort(options = {}) {
         try {
+            this.viewportOptions = options
             return this.pdf.getViewport(options)
         } catch(error) {
             console.log("setViewPort -> ", error)
         }
     }
 
-    render(canvasContext = null, viewport = null) {
+    async render(canvasElement = null || this.canvasElement, viewportOpt = null || this.viewportOptions) {
         try {
-            if (!canvasContext || !viewport) {
+            if (!canvasElement || !viewportOpt) {
                 return
             }
+            this.canvasElement = canvasElement
+            const viewport = await this.setViewPort(viewportOpt)
+            const canvas = canvasElement;
+            const context = canvas.getContext('2d');
+
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
             this.pdf.render({
-                canvasContext,
+                canvasContext: context,
                 viewport
             })
         } catch(error) {
