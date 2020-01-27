@@ -17,6 +17,8 @@ const PdfComponent = ({ src, width, height }) => {
     "http://www.best-signature.com/wp-content/uploads/2017/01/e20_2.jpg"
   ])
   const [dataDropElements, setElements] =  useState([])
+  const [currentPage, setPage] =  useState(1)
+  const [dataPerPage, setDataPerpage] = useState({})
 
   useEffect(() => {
     const fetchPdf = async () => {
@@ -36,68 +38,28 @@ const PdfComponent = ({ src, width, height }) => {
    * [Add new DnD & resize element]
    */
   const addSignatureElement = _ => {
-    let parent = document.querySelector(".drop-area")
     let randomId = Math.random().toString(36).substring(7);
     let node = document.createElement("div")
-    // remove prev element active class
-    setActiveClass("removeall")
-
-    node.id = randomId
-    node.className = "resizable dragable active"
-    node.innerHTML = `
-      <div class="resizers">
-        <img class="img-wrapper" src=${signature} />
-        <div class="resizer bottom-right ${node.id}"></div>
-        <div class='resizer-close top-right'>
-          <span>x</span>
-        </div>
-      </div>
-    `
-    node.style.display = "unset"
-    parent.appendChild(node)
-
-    // add event click on close btn [selcetor => .resizers]
-    node.childNodes[1].onmousedown = _ => setActiveClass(node)
-    node.childNodes[1].childNodes[5].onclick = _ => removeSignatureElement(node)
+    let data = [
+      {
+        id: randomId,
+        x:100,
+        y:100,
+        width: 100,
+        height: 100,
+        signature: signature,
+        isInit: false
+      }
+    ]
+    if (dataPerPage[currentPage]) {
+      data = [...dataPerPage[currentPage], ...data]
+    }
+    const test = {
+      ...dataPerPage,
+      [currentPage]: data
+    }
+    setDataPerpage(test)
     
-    // init draggable element and set data while dragging element
-    // dragElement(document.getElementById(node.id))
-    let draggableElement = new MakeDraggableDiv(node.id)
-    draggableElement.setDraggable(callback => {
-      dataDropElements.filter(res => {
-        if(res.id === callback.id) {
-          res.x = callback.offsetLeft
-          res.y = callback.offsetTop
-          res.width = callback.offsetWidth
-          res.height = callback.offsetHeight
-        }
-      })
-      setPosition({
-        x:callback.offsetLeft,
-        y:callback.offsetTop,
-        width:callback.offsetWidth,
-        height:callback.offsetHeight
-      })
-    })
-    // init resize element and set data while resizing element
-    let resizeElement = new MakeResizableDiv(node.id)
-    resizeElement.setResizable(callback => {
-      dataDropElements.filter(res => {
-        if(res.id === callback.id) {
-          res.x = callback.offsetLeft
-          res.y = callback.offsetTop
-          res.width = callback.offsetWidth
-          res.height = callback.offsetHeight
-        }
-      })
-      setPosition({
-        x:callback.offsetLeft,
-        y:callback.offsetTop,
-        width:callback.offsetWidth,
-        height:callback.offsetHeight
-      })
-    })    
-
     dataDropElements.push({
       id: node.id,
       x:100,
@@ -108,20 +70,84 @@ const PdfComponent = ({ src, width, height }) => {
       signature: signature
     })
   }
+
+  const DragResizeComponent = (props) => {
+    const {node,initFuction} = props
+    const {x,y,width,height,id,isInit} = node
+    useEffect(() => {
+      initFuction(node)
+      setActiveClass(document.getElementById(node.id))
+      dataPerPage[currentPage].map(res => {
+        if(res.id === id) {
+          res.isInit = true
+        }
+      })
+    }, []) 
+    return (
+      <div 
+        style={{ display:"unset", left:x,top:y,width:width,height:height }} 
+        className={`resizable dragable active ${!isInit && "on-animate"}`} 
+        id={node.id}>
+        <div className="resizers">
+          <img className="img-wrapper" src={node.signature} />
+          <div className={`resizer bottom-right ${node.id}`}></div>
+          <div className='resizer-close top-right'>
+            <span>x</span>
+          </div>
+        </div>
+      </div>
+    )
+  }  
+
+  const initializeFunction = element => {
+    [...document.querySelectorAll('.dragable')].map(res => {
+      let node = document.getElementById(element.id)
+      node.childNodes[0].onmousedown = _ => setActiveClass(node)
+      node.childNodes[0].childNodes[2].onclick = _ => removeSignatureElement(node)
+
+      // init draggable element and set data while dragging element
+      let draggableElement = new MakeDraggableDiv(node.id)
+      draggableElement.setDraggable(callback => {
+        dataPerPage[currentPage].filter(res => {
+          if(res.id === callback.id) {
+            res.x = callback.offsetLeft
+            res.y = callback.offsetTop
+            res.width = callback.offsetWidth
+            res.height = callback.offsetHeight
+          }
+        })
+      })
+
+      // init resize element and set data while resizing element
+      let resizeElement = new MakeResizableDiv(node.id)
+      resizeElement.setResizable(callback => {
+        dataPerPage[currentPage].filter(res => {
+          if(res.id === callback.id) {
+            res.x = callback.offsetLeft
+            res.y = callback.offsetTop
+            res.width = callback.offsetWidth
+            res.height = callback.offsetHeight
+          }
+        })
+      })
+      
+    })
+  }
   
   /**
    * [Remove & destroy data DnD Resize and element]
    * @param {[elmnt]} => node element 
    */
   const removeSignatureElement = elmnt => {
-    dataDropElements.filter((res,indx) => {
+    let data = dataPerPage
+    data[currentPage].filter((res,indx) => {
       if(res.id === elmnt.id) {
-        dataDropElements.splice(indx,1)
+        data[currentPage].splice(indx,1)
       }
     })
     elmnt.classList.add("remove")
     setTimeout(() => {
-      elmnt.remove()
+      setDataPerpage(data)
     }, 500);
   }
 
@@ -159,6 +185,16 @@ const PdfComponent = ({ src, width, height }) => {
     context.drawImage(img, parentWrapper.offsetLeft,parentWrapper.offsetTop, parentWrapper.offsetWidth,  parentWrapper.offsetHeight)
     parentWrapper.style.display = "none"
   }
+
+  const changePdfPage = type => {
+    if(type === "prev") {
+      PdfGenerator.prevPage()
+      setPage(PdfGenerator.activePage)
+    } else {
+      PdfGenerator.nextPage()
+      setPage(PdfGenerator.activePage)
+    }
+  }
  
   return (
     <div className="App">
@@ -167,8 +203,8 @@ const PdfComponent = ({ src, width, height }) => {
           Create <code>e-signed document</code> and save.
         </p>
         <div className="wrapper-page-btn">
-          <div className="prev-btn" onClick={() => PdfGenerator.prevPage()}></div>
-          <div className="next-btn right-0" onClick={() => PdfGenerator.nextPage()}></div>
+          <div className="prev-btn" onClick={() => changePdfPage("prev")}></div>
+          <div className="next-btn right-0" onClick={() => changePdfPage("next")}></div>
         </div>
       </header>
 
@@ -181,12 +217,18 @@ const PdfComponent = ({ src, width, height }) => {
           </div>
           <div style={{marginTop:50}} className="btn-wrapper" id="button-wrapper">
             <a onClick={_ => selectSignature(null, 0,"button")}>Signature</a>
-            <a onClick={_ => console.log(dataDropElements[0].nodeEl)}>Initial</a>
+            <a onClick={_ => console.log(dataPerPage)}>Initial</a>
             <a onClick={() => printLocation()}>Instant Print</a>
           </div>
         </div>
         <div className="content">
             <div className="drop-area">
+              {dataPerPage[currentPage] && dataPerPage[currentPage].map((res,indx) => {
+                  return <DragResizeComponent 
+                          key={indx} 
+                          initFuction={e => initializeFunction(e)} 
+                          node={res} /> 
+              })}
               <div className="abandoned-wrapper"></div>
             </div>
             <div><canvas ref={canvasRef} /></div>

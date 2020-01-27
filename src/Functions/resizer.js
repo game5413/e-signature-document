@@ -11,6 +11,7 @@
         this.original_height = 0;
         this.original_mouse_x = 0;
         this.original_mouse_y = 0;
+        this.callback = null
     }
     
     /**
@@ -19,7 +20,8 @@
      */
     setResizable  = callback => {
         let currentResizer = ""
-        currentResizer = this.element.childNodes[1].childNodes[3];
+        this.callback = callback
+        currentResizer = this.element.childNodes[0].childNodes[1];
         currentResizer.onmousedown = e => {
             this.original_width = parseFloat(getComputedStyle(this.element, null).getPropertyValue('width').replace('px', ''));
             this.original_height = parseFloat(getComputedStyle(this.element, null).getPropertyValue('height').replace('px', ''));
@@ -27,8 +29,10 @@
             this.original_mouse_y = e.pageY;
             
             window.addEventListener('mousemove', this.resize)
-            window.addEventListener('mouseup', node => this.stopResize({node,callback}))
+            window.onmouseup = this.stopResize
         }
+        
+       
     }
     
     /**
@@ -59,11 +63,12 @@
      * @param {[node]} => node property
      */
     stopResize = node => {
-        const {callback} = node
         window.removeEventListener('mousemove', this.resize)
+        window.onmouseup = null
+
         if(this.element) {
             // return element to callback
-            return callback(this.element)
+            return this.callback(this.element)
         }
     }
   }

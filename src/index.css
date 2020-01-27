@@ -137,9 +137,12 @@ code {
   top: 100px;
   left: 100px;
   display: none;
+  transform: scale(1);
+  z-index: 1;
+}
+.on-animate{
   animation-name: scaledup;
   animation-duration: .5s;
-  transform: scale(1);
 }
 @keyframes scaledup{
   0%   {

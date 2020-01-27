@@ -3,7 +3,7 @@
  * @param {[wrapper]} => node element 
  */
 const preventOverflow = wrapper => {
-  for (let index = 1; index < wrapper.childNodes.length; index++) {
+  for (let index = 0; index < wrapper.childNodes.length-1; index++) {
     let child = wrapper.childNodes[index]
     child.onmouseup = () => {
       let rect1 = child.getBoundingClientRect()
@@ -82,22 +82,22 @@ const setActiveClass = elmnt => {
   let parent = document.querySelector(".drop-area")
   // remove active class
   if(elmnt === "removeall") {
-    for (let i = 1; i < parent.childNodes.length; i++) {
+    for (let i = 0; i < parent.childNodes.length-1; i++) {
       parent.childNodes[i].classList.remove("active")
-      parent.childNodes[i].childNodes[1].childNodes[3].style.display = "none"
-      parent.childNodes[i].childNodes[1].childNodes[5].style.display = "none"
+      parent.childNodes[i].childNodes[0].childNodes[1].style.display = "none"
+      parent.childNodes[i].childNodes[0].childNodes[2].style.display = "none"
     }
   } else {
-    for (let i = 1; i < parent.childNodes.length; i++) {
+    for (let i = 0; i < parent.childNodes.length-1; i++) {
       parent.childNodes[i].classList.remove("active")
-      parent.childNodes[i].childNodes[1].childNodes[3].style.display = "none"
-      parent.childNodes[i].childNodes[1].childNodes[5].style.display = "none"
+      parent.childNodes[i].childNodes[0].childNodes[1].style.display = "none"
+      parent.childNodes[i].childNodes[0].childNodes[2].style.display = "none"
     }
 
-    // set active class to current clicked element 
+    // set active class to current clicked element
     elmnt.classList.add("active")
-    elmnt.childNodes[1].childNodes[3].style.display = "unset"
-    elmnt.childNodes[1].childNodes[5].style.display = "unset"
+    elmnt.childNodes[0].childNodes[1].style.display = "unset"
+    elmnt.childNodes[0].childNodes[2].style.display = "unset"
   }
 }
 
