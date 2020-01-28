@@ -8,6 +8,9 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+.App {
+  background: #eceff1;
+}
 .App-header p {
   margin: 10px 0px;
 }
@@ -22,6 +25,7 @@ code {
   flex: 1 1 0%;
   background: #eceff1;
   flex-direction: column;
+  width: 300px;
 }
 .btn-wrapper {
   display: flex;
@@ -227,4 +231,24 @@ code {
   height: 50px;
   background-color: red;
   position: absolute;
+}
+
+.p0-m0 {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+.naxt-prev-btn{
+  color: #000;
+  font-weight: bold;
+  transform: translate(-4px, -4px) scale(1.5);
+  position: absolute;
+  user-select: none;
+}
+
+.max-wrapper {
+  max-width: 1300px;
+  display: flex;
+  width: 100%;
+  position: relative;
+  margin: 0 auto;
 }

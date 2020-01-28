@@ -173,37 +173,43 @@ const PdfComponent = ({ src, width, height }) => {
         <p>
           Create <code>e-signed document</code> and save.
         </p>
-        <div className="wrapper-page-btn">
-          <div className="prev-btn" onClick={() => changePdfPage("prev")}></div>
-          <div className="next-btn right-0" onClick={() => changePdfPage("next")}></div>
+        <div className="wrapper-page-btn btn-wrapper">
+          <a className="prev-btn p0-m0" onClick={() => changePdfPage("prev")}>
+            <span className="naxt-prev-btn">&#x2039;</span>
+          </a>
+          <a className="next-btn right-0 p0-m0" onClick={() => changePdfPage("next")}>
+            <span className="naxt-prev-btn">&#x203A;</span>
+          </a>
         </div>
       </header>
 
-      <div style={{display: "flex", flexDirection: "row", height: '100%', overflow: "hidden"}}>
-        <div className="left-container">
-          <div className="btn-wrapper">
-            {signatureData.map((result,indx) => {
-              return <a key={indx} onClick={_ => selectSignature(result,indx,"items")}>Signature {indx+1}</a>
-            })}
-          </div>
-          <div style={{marginTop:50}} className="btn-wrapper" id="button-wrapper">
-            <a onClick={_ => selectSignature(null, 0,"button")}>Signature</a>
-            <a onClick={_ => console.log(dataPerPage)}>Initial</a>
-            <a onClick={() => printLocation()}>Instant Print</a>
-          </div>
-        </div>
-        <div className="content">
-            <div className="drop-area">
-              {dataPerPage[currentPage] && dataPerPage[currentPage].map((res,indx) => {
-                return <DragResizeComponent 
-                        key={indx} 
-                        initFuction={e => initializeFunction(e)} 
-                        node={res}
-                        dataPerPage ={dataPerPage[currentPage]}/> 
+      <div className="max-wrapper">
+        <div style={{display: "flex", flexDirection: "row", height: '100%', overflow: "hidden"}}>
+          <div className="left-container">
+            <div className="btn-wrapper">
+              {signatureData.map((result,indx) => {
+                return <a key={indx} onClick={_ => selectSignature(result,indx,"items")}>Signature {indx+1}</a>
               })}
-              <div className="abandoned-wrapper"></div>
             </div>
-            <div><canvas ref={canvasRef} /></div>
+            <div style={{marginTop:50}} className="btn-wrapper" id="button-wrapper">
+              <a onClick={_ => selectSignature(null, 0,"button")}>Signature</a>
+              <a onClick={_ => console.log(dataPerPage)}>Initial</a>
+              <a onClick={() => printLocation()}>Instant Print</a>
+            </div>
+          </div>
+          <div className="content">
+              <div className="drop-area">
+                {dataPerPage[currentPage] && dataPerPage[currentPage].map((res,indx) => {
+                  return <DragResizeComponent 
+                          key={indx} 
+                          initFuction={e => initializeFunction(e)} 
+                          node={res}
+                          dataPerPage ={dataPerPage[currentPage]}/> 
+                })}
+                <div className="abandoned-wrapper"></div>
+              </div>
+              <div><canvas ref={canvasRef} /></div>
+          </div>
         </div>
       </div>
     </div>
