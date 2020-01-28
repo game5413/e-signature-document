@@ -9,14 +9,13 @@ import DragResizeComponent from "./Components/DragResize"
 
 const PdfComponent = ({ src, width, height }) => {
   const canvasRef = useRef(null)
-  const [signatureProps, setPosition] = useState({x:100,y:100,width:100,height:100})
-  const [dataSignature, setDataSignature] = useState([])
   const [signature, setSign] = useState("")
   const [signatureData, setData] = useState([
     "https://kilausenja.com/wp-content/uploads/2019/04/18-02-08-17-29-50-859_deco.jpg",
     "https://image.winudf.com/v2/image1/Y29tLnlva29hcHB4LnNpZ25hdHVyZW1ha2VyX3NjcmVlbl8wXzE1NTc1MTA4NjhfMDIw/screen-0.jpg?fakeurl=1&type=.jpg",
     "http://www.best-signature.com/wp-content/uploads/2017/01/e20_2.jpg"
   ])
+  let [totalPage, setTotalPages] = useState(0)
   const [currentPage, setPage] =  useState(1)
   const [dataPerPage, setDataPerpage] = useState({})
 
@@ -24,6 +23,7 @@ const PdfComponent = ({ src, width, height }) => {
     const fetchPdf = async () => {
       await PdfGenerator.loadDocument(src)
       await PdfGenerator.render(canvasRef.current, { scale:1.7 })
+      setTotalPages(await PdfGenerator.pages)
     };
     fetchPdf();
 
@@ -158,6 +158,12 @@ const PdfComponent = ({ src, width, height }) => {
   }
 
   const changePdfPage = type => {
+    let totalPage = document.querySelector(".wrapper-total-page")
+    totalPage.childNodes[0].classList.add("scaled-change")
+    setTimeout(() => {
+      totalPage.childNodes[0].classList.remove("scaled-change")
+    }, 400);
+    
     if(type === "prev") {
       PdfGenerator.prevPage()
       setPage(PdfGenerator.activePage)
@@ -177,6 +183,11 @@ const PdfComponent = ({ src, width, height }) => {
           <a className="prev-btn p0-m0" onClick={() => changePdfPage("prev")}>
             <span className="naxt-prev-btn">&#x2039;</span>
           </a>
+          <div className="wrapper-total-page">
+            <span>{currentPage}</span>
+            <span>  /  </span>
+            <span>{totalPage}</span>
+          </div>
           <a className="next-btn right-0 p0-m0" onClick={() => changePdfPage("next")}>
             <span className="naxt-prev-btn">&#x203A;</span>
           </a>
