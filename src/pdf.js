@@ -4,7 +4,8 @@ import PdfGenerator from "./PdfGenerator"
 import withWindowSize from "./withWindowSize"
 import MakeResizableDiv from './Functions/resizer'
 import MakeDraggableDiv from './Functions/draggable'
-import {preventOverflow,setActiveClass} from "./Functions/adjustingUi"
+import {setActiveClass} from "./Functions/adjustingUi"
+import DragResizeComponent from "./Components/DragResize"
 
 const PdfComponent = ({ src, width, height }) => {
   const canvasRef = useRef(null)
@@ -16,7 +17,6 @@ const PdfComponent = ({ src, width, height }) => {
     "https://image.winudf.com/v2/image1/Y29tLnlva29hcHB4LnNpZ25hdHVyZW1ha2VyX3NjcmVlbl8wXzE1NTc1MTA4NjhfMDIw/screen-0.jpg?fakeurl=1&type=.jpg",
     "http://www.best-signature.com/wp-content/uploads/2017/01/e20_2.jpg"
   ])
-  const [dataDropElements, setElements] =  useState([])
   const [currentPage, setPage] =  useState(1)
   const [dataPerPage, setDataPerpage] = useState({})
 
@@ -33,13 +33,13 @@ const PdfComponent = ({ src, width, height }) => {
     abandoned.onclick = _ => setActiveClass("removeall")
   }, [src]);
 
- 
    /**
    * [Add new DnD & resize element]
+   * and put them on Array of obj
+   * then set them to dataPerPage state
    */
   const addSignatureElement = _ => {
     let randomId = Math.random().toString(36).substring(7);
-    let node = document.createElement("div")
     let data = [
       {
         id: randomId,
@@ -54,51 +54,21 @@ const PdfComponent = ({ src, width, height }) => {
     if (dataPerPage[currentPage]) {
       data = [...dataPerPage[currentPage], ...data]
     }
-    const test = {
+    const newData = {
       ...dataPerPage,
       [currentPage]: data
     }
-    setDataPerpage(test)
-    
-    dataDropElements.push({
-      id: node.id,
-      x:100,
-      y:100,
-      width: 100,
-      height: 100,
-      nodeEl: node,
-      signature: signature
-    })
+    setDataPerpage(newData)    
   }
 
-  const DragResizeComponent = (props) => {
-    const {node,initFuction} = props
-    const {x,y,width,height,id,isInit} = node
-    useEffect(() => {
-      initFuction(node)
-      setActiveClass(document.getElementById(node.id))
-      dataPerPage[currentPage].map(res => {
-        if(res.id === id) {
-          res.isInit = true
-        }
-      })
-    }, []) 
-    return (
-      <div 
-        style={{ display:"unset", left:x,top:y,width:width,height:height }} 
-        className={`resizable dragable active ${!isInit && "on-animate"}`} 
-        id={node.id}>
-        <div className="resizers">
-          <img className="img-wrapper" src={node.signature} />
-          <div className={`resizer bottom-right ${node.id}`}></div>
-          <div className='resizer-close top-right'>
-            <span>x</span>
-          </div>
-        </div>
-      </div>
-    )
-  }  
-
+  /**
+   * [Inet elemet function]
+   * set active class when clicking on it
+   * remove the element when clicking on the close btn
+   * make element available to drag
+   * make element available to resize
+   * @param {[element]} => node element 
+   */
   const initializeFunction = element => {
     [...document.querySelectorAll('.dragable')].map(res => {
       let node = document.getElementById(element.id)
@@ -132,7 +102,6 @@ const PdfComponent = ({ src, width, height }) => {
           }
         })
       })
-      
     })
   }
   
@@ -179,7 +148,7 @@ const PdfComponent = ({ src, width, height }) => {
 
   function printLocation() {
     let parentWrapper = document.querySelector(".resizable.dragable.active")
-    let newImg = parentWrapper.childNodes[1].childNodes[1].src
+    let newImg = parentWrapper.childNodes[0].childNodes[0].src
     let canvas = canvasRef.current
     let context = canvas.getContext('2d')
     let img = new Image
@@ -226,10 +195,11 @@ const PdfComponent = ({ src, width, height }) => {
         <div className="content">
             <div className="drop-area">
               {dataPerPage[currentPage] && dataPerPage[currentPage].map((res,indx) => {
-                  return <DragResizeComponent 
-                          key={indx} 
-                          initFuction={e => initializeFunction(e)} 
-                          node={res} /> 
+                return <DragResizeComponent 
+                        key={indx} 
+                        initFuction={e => initializeFunction(e)} 
+                        node={res}
+                        dataPerPage ={dataPerPage[currentPage]}/> 
               })}
               <div className="abandoned-wrapper"></div>
             </div>
