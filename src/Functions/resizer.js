@@ -19,20 +19,18 @@
      * @param {[callback]} => callback to set in view
      */
     setResizable  = callback => {
-        let currentResizer = ""
-        this.callback = callback
-        currentResizer = this.element.childNodes[0].childNodes[1];
-        currentResizer.onmousedown = e => {
-            this.original_width = parseFloat(getComputedStyle(this.element, null).getPropertyValue('width').replace('px', ''));
-            this.original_height = parseFloat(getComputedStyle(this.element, null).getPropertyValue('height').replace('px', ''));
-            this.original_mouse_x = e.pageX;
-            this.original_mouse_y = e.pageY;
-            
-            window.addEventListener('mousemove', this.resize)
-            window.onmouseup = this.stopResize
-        }
-        
-       
+      let currentResizer = ""
+      this.callback = callback
+      currentResizer = this.element.childNodes[0].childNodes[1];
+      currentResizer.onmousedown = e => {
+          this.original_width = parseFloat(getComputedStyle(this.element, null).getPropertyValue('width').replace('px', ''));
+          this.original_height = parseFloat(getComputedStyle(this.element, null).getPropertyValue('height').replace('px', ''));
+          this.original_mouse_x = e.pageX;
+          this.original_mouse_y = e.pageY;
+          
+          window.addEventListener('mousemove', this.resize)
+          window.onmouseup = this.stopResize
+      }        
     }
     
     /**

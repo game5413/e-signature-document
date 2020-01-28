@@ -1,4 +1,5 @@
- /**
+import {preventOverflow} from "./adjustingUi"
+  /**
    * [Make the DIV element Draggable]
    * @param {[elmnt]} => node element 
   */
@@ -9,6 +10,8 @@
         this.pos2 = 0
         this.pos3 = 0
         this.pos4 = 0
+        this.boundaryCallback = null
+        this.wrapper = document.querySelector(".drop-area")
      }
 
     /**
@@ -45,9 +48,15 @@
         // set the element's new position
         this.element.style.top = (this.element.offsetTop - this.pos2) + "px"
         this.element.style.left = (this.element.offsetLeft - this.pos1) + "px"
-        
+        this.wrapper.onmousemove =  
+        _ => preventOverflow(this.wrapper, element => {
+          if(element) {
+            callback(element)
+            return false
+          }
+        })
         // return element to callback
-        callback(this.element)  
+        callback(this.element)
     }
 
     /**

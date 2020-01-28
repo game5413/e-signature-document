@@ -1,8 +1,9 @@
 /**
  * [Prevent overflowing the canvas]
- * @param {[wrapper]} => node element 
+ * @param {[wrapper]} => node element
+ * @param {[callback]} => callback if the element overflowing the parent wrappper 
  */
-const preventOverflow = wrapper => {
+const preventOverflow = (wrapper,callback) => {
   for (let index = 0; index < wrapper.childNodes.length-1; index++) {
     let child = wrapper.childNodes[index]
     child.onmouseup = () => {
@@ -34,36 +35,45 @@ const preventOverflow = wrapper => {
       if(leftOverflow && topOverflow) {
         child.style.left = overflowBoundary(child.offsetLeft,"plus",100,rect2.left - rect1.left)
         child.style.top =  overflowBoundary(child.offsetTop,"plus",100,rect1.top - rect2.top)
+        callback &&  callback(child)
       }
       // Right Top Boundary 
       else if(rightOverflow && topOverflow) {
         child.style.left = overflowBoundary(child.offsetLeft,"min",100,rect2.right - rect1.right)
         child.style.top =  overflowBoundary(child.offsetTop,"plus",100,rect1.top - rect2.top)
-      // Right Bottom Boundary 
-      } else if(leftOverflow && bottomOverflow) {
+        callback &&  callback(child) 
+      } 
+      // Left Bottom Boundary
+      else if(leftOverflow && bottomOverflow) {
         child.style.left = overflowBoundary(child.offsetLeft,"plus",100,rect2.left - rect1.left)
         child.style.top =  overflowBoundary(child.offsetTop,"min",100,rect2.bottom - rect1.bottom)
+        callback &&  callback(child) 
       } 
       // Right Top Boundary
       else if(rightOverflow && bottomOverflow) {
         child.style.left = overflowBoundary(child.offsetLeft,"min",100,rect2.right - rect1.right)
         child.style.top =  overflowBoundary(child.offsetTop,"min",100,rect2.bottom - rect1.bottom)
+        callback &&  callback(child) 
       }
       // Left Boundary
       else if(leftOverflow) {
         child.style.left = overflowBoundary(child.offsetLeft,"plus",100,rect2.left - rect1.left)
+        callback &&  callback(child) 
       } 
       // Right Boundary
       else if(rightOverflow) {
         child.style.left = overflowBoundary(child.offsetLeft,"min",100,rect2.right - rect1.right)
+        callback &&  callback(child) 
       } 
       //Top Boundary
       else if(topOverflow){
         child.style.top =  overflowBoundary(child.offsetTop,"plus",100,rect1.top - rect2.top)
+        callback &&  callback(child) 
       } 
       // Bottom Boundary
       else if(bottomOverflow){
         child.style.top =  overflowBoundary(child.offsetTop,"min",100,rect2.bottom - rect1.bottom)
+        callback &&  callback(child) 
       }
 
       //reset transition

@@ -27,9 +27,9 @@ const PdfComponent = ({ src, width, height }) => {
     };
     fetchPdf();
 
-    let wrapper = document.querySelector(".drop-area")
+    // let wrapper = document.querySelector(".drop-area")
+    // wrapper.onmousemove =  _ => preventOverflow(wrapper)
     let abandoned = document.querySelector(".abandoned-wrapper")
-    wrapper.onmousemove =  _ => preventOverflow(wrapper)
     abandoned.onclick = _ => setActiveClass("removeall")
   }, [src]);
 
@@ -110,10 +110,11 @@ const PdfComponent = ({ src, width, height }) => {
       draggableElement.setDraggable(callback => {
         dataPerPage[currentPage].filter(res => {
           if(res.id === callback.id) {
-            res.x = callback.offsetLeft
-            res.y = callback.offsetTop
-            res.width = callback.offsetWidth
-            res.height = callback.offsetHeight
+            const {left,top,width,height} = callback.style
+            res.x = parseInt(left.replace("px",""))
+            res.y = parseInt(top.replace("px",""))
+            res.width = parseInt(width.replace("px",""))
+            res.height = parseInt(height.replace("px",""))
           }
         })
       })
@@ -123,10 +124,11 @@ const PdfComponent = ({ src, width, height }) => {
       resizeElement.setResizable(callback => {
         dataPerPage[currentPage].filter(res => {
           if(res.id === callback.id) {
-            res.x = callback.offsetLeft
-            res.y = callback.offsetTop
-            res.width = callback.offsetWidth
-            res.height = callback.offsetHeight
+            const {left,top,width,height} = callback.style
+            res.x = parseInt(left.replace("px",""))
+            res.y = parseInt(top.replace("px",""))
+            res.width = parseInt(width.replace("px",""))
+            res.height = parseInt(height.replace("px",""))
           }
         })
       })
