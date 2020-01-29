@@ -1,0 +1,16 @@
+const printLocation = _ => {
+    let parentWrapper = document.querySelector(".resizable.dragable.active")
+    let newImg = parentWrapper.childNodes[0].childNodes[0].src
+    let canvas = canvasRef.current;
+    let context = canvas.getContext("2d");
+    let img = new Image();
+    img.crossOrigin = "anonymous";
+    img.src = newImg
+    
+    setTimeout(() => {
+      context.drawImage(img, parentWrapper.offsetLeft,parentWrapper.offsetTop, parentWrapper.offsetWidth,  parentWrapper.offsetHeight)
+      parentWrapper.style.display = "none"
+    }, 10);
+  }
+{/* <a onClick={() => printLocation()}>Instant Print</a> */}
+  
