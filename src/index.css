@@ -183,7 +183,7 @@ code {
   /* border: 3px solid #4286f4; */
   box-sizing: border-box;
 }
-.active{
+.active-border{
   border: 3px solid #4286f4;
 }
 
@@ -240,7 +240,7 @@ code {
 .naxt-prev-btn{
   color: #000;
   font-weight: bold;
-  transform: translate(-4px, -4px) scale(1.5);
+  transform: translate(-4px, -6px) scale(1.5);
   position: absolute;
   user-select: none;
 }

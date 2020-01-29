@@ -93,19 +93,19 @@ const setActiveClass = elmnt => {
   // remove active class
   if(elmnt === "removeall") {
     for (let i = 0; i < parent.childNodes.length-1; i++) {
-      parent.childNodes[i].classList.remove("active")
+      parent.childNodes[i].classList.remove("active-border")
       parent.childNodes[i].childNodes[0].childNodes[1].style.display = "none"
       parent.childNodes[i].childNodes[0].childNodes[2].style.display = "none"
     }
   } else {
     for (let i = 0; i < parent.childNodes.length-1; i++) {
-      parent.childNodes[i].classList.remove("active")
+      parent.childNodes[i].classList.remove("active-border")
       parent.childNodes[i].childNodes[0].childNodes[1].style.display = "none"
       parent.childNodes[i].childNodes[0].childNodes[2].style.display = "none"
     }
 
     // set active class to current clicked element
-    elmnt.classList.add("active")
+    elmnt.classList.add("active-border")
     elmnt.childNodes[0].childNodes[1].style.display = "unset"
     elmnt.childNodes[0].childNodes[2].style.display = "unset"
   }

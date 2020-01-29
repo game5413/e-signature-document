@@ -15,7 +15,7 @@ const PdfComponent = ({ src, width, height }) => {
     "https://i.ibb.co/ZJGb55v/screen-0-jpg-fakeurl-1-type.jpg",
     "https://i.ibb.co/10YCd1c/method-draw-image.png"
   ])
-  let [totalPage, setTotalPages] = useState(0)
+  const [totalPage, setTotalPages] = useState(0)
   const [currentPage, setPage] =  useState(1)
   const [dataPerPage, setDataPerpage] = useState({})
 
@@ -146,21 +146,6 @@ const PdfComponent = ({ src, width, height }) => {
     }
   }
 
-  const printLocation = _ => {
-    let parentWrapper = document.querySelector(".resizable.dragable.active")
-    let newImg = parentWrapper.childNodes[0].childNodes[0].src
-    let canvas = canvasRef.current;
-    let context = canvas.getContext("2d");
-    let img = new Image();
-    img.crossOrigin = "anonymous";
-    img.src = newImg
-    
-    setTimeout(() => {
-      context.drawImage(img, parentWrapper.offsetLeft,parentWrapper.offsetTop, parentWrapper.offsetWidth,  parentWrapper.offsetHeight)
-      parentWrapper.style.display = "none"
-    }, 10);
-  }
-
   const changePdfPage = type => {
     let totalPage = document.querySelector(".wrapper-total-page")
     totalPage.childNodes[0].classList.add("scaled-change")
@@ -177,7 +162,29 @@ const PdfComponent = ({ src, width, height }) => {
     }
   }
 
+  let isDone = 0;
   const saveCanvas = _ => {
+    dataPerPage[currentPage].map((res,index) => {
+      let canvas = canvasRef.current;
+      let context = canvas.getContext("2d");
+      let img = new Image();
+      img.crossOrigin = "anonymous";
+      img.src = res.signature
+
+      setTimeout(() => {
+        isDone++
+        context.drawImage(img, res.x,res.y, res.width,  res.height)
+        console.log(isDone, dataPerPage[currentPage].length)
+        if(isDone === dataPerPage[currentPage].length) {
+          setTimeout(() => {
+            downloadCanvas()
+          }, 200);
+        }
+      }, 100);
+    })
+  }
+
+  const downloadCanvas = _ => {
     let tagA = document.createElement("a")
     let canvas = canvasRef.current
     document.body.appendChild(tagA)
@@ -217,9 +224,7 @@ const PdfComponent = ({ src, width, height }) => {
               })}
             </div>
             <div style={{marginTop:50}} className="btn-wrapper" id="button-wrapper">
-              <a onClick={_ => selectSignature(null, 0,"button")}>Signature</a>
-              <a onClick={_ => console.log(dataPerPage)}>Initial</a>
-              <a onClick={() => printLocation()}>Instant Print</a>
+              <a onClick={_ => selectSignature(null, 0,"button")}>Set Signature</a>
               <a onClick={() => saveCanvas()}>Save as Img</a>
             </div>
           </div>
