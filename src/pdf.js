@@ -11,9 +11,9 @@ const PdfComponent = ({ src, width, height }) => {
   const canvasRef = useRef(null)
   const [signature, setSign] = useState("")
   const [signatureData, setData] = useState([
-    "https://kilausenja.com/wp-content/uploads/2019/04/18-02-08-17-29-50-859_deco.jpg",
-    "https://image.winudf.com/v2/image1/Y29tLnlva29hcHB4LnNpZ25hdHVyZW1ha2VyX3NjcmVlbl8wXzE1NTc1MTA4NjhfMDIw/screen-0.jpg?fakeurl=1&type=.jpg",
-    "http://www.best-signature.com/wp-content/uploads/2017/01/e20_2.jpg"
+    "https://i.ibb.co/Lt2vdhd/18-02-08-17-29-50-859-deco.jpg",
+    "https://i.ibb.co/ZJGb55v/screen-0-jpg-fakeurl-1-type.jpg",
+    "https://i.ibb.co/10YCd1c/method-draw-image.png"
   ])
   let [totalPage, setTotalPages] = useState(0)
   const [currentPage, setPage] =  useState(1)
@@ -146,15 +146,19 @@ const PdfComponent = ({ src, width, height }) => {
     }
   }
 
-  function printLocation() {
+  const printLocation = _ => {
     let parentWrapper = document.querySelector(".resizable.dragable.active")
     let newImg = parentWrapper.childNodes[0].childNodes[0].src
-    let canvas = canvasRef.current
-    let context = canvas.getContext('2d')
-    let img = new Image
+    let canvas = canvasRef.current;
+    let context = canvas.getContext("2d");
+    let img = new Image();
+    img.crossOrigin = "anonymous";
     img.src = newImg
-    context.drawImage(img, parentWrapper.offsetLeft,parentWrapper.offsetTop, parentWrapper.offsetWidth,  parentWrapper.offsetHeight)
-    parentWrapper.style.display = "none"
+    
+    setTimeout(() => {
+      context.drawImage(img, parentWrapper.offsetLeft,parentWrapper.offsetTop, parentWrapper.offsetWidth,  parentWrapper.offsetHeight)
+      parentWrapper.style.display = "none"
+    }, 10);
   }
 
   const changePdfPage = type => {
@@ -171,6 +175,16 @@ const PdfComponent = ({ src, width, height }) => {
       PdfGenerator.nextPage()
       setPage(PdfGenerator.activePage)
     }
+  }
+
+  const saveCanvas = _ => {
+    let tagA = document.createElement("a")
+    let canvas = canvasRef.current
+    document.body.appendChild(tagA)
+    tagA.href  = canvas.toDataURL()
+    tagA.download = "canvas-image.png"
+    tagA.click()
+    document.body.removeChild(tagA)
   }
  
   return (
@@ -206,6 +220,7 @@ const PdfComponent = ({ src, width, height }) => {
               <a onClick={_ => selectSignature(null, 0,"button")}>Signature</a>
               <a onClick={_ => console.log(dataPerPage)}>Initial</a>
               <a onClick={() => printLocation()}>Instant Print</a>
+              <a onClick={() => saveCanvas()}>Save as Img</a>
             </div>
           </div>
           <div className="content">
