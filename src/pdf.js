@@ -123,6 +123,7 @@ const PdfComponent = ({ src, width, height }) => {
   }
 
   const selectSignature = (param,indexEl,type) => {
+    setActiveClass("removeall")
     if(type === "button") {
       let parent = document.querySelector("#button-wrapper")
       addSignatureElement("signature")
@@ -174,7 +175,6 @@ const PdfComponent = ({ src, width, height }) => {
       setTimeout(() => {
         isDone++
         context.drawImage(img, res.x,res.y, res.width,  res.height)
-        console.log(isDone, dataPerPage[currentPage].length)
         if(isDone === dataPerPage[currentPage].length) {
           setTimeout(() => {
             downloadCanvas()
@@ -225,7 +225,8 @@ const PdfComponent = ({ src, width, height }) => {
             </div>
             <div style={{marginTop:50}} className="btn-wrapper" id="button-wrapper">
               <a onClick={_ => selectSignature(null, 0,"button")}>Set Signature</a>
-              <a onClick={() => saveCanvas()}>Save as Img</a>
+              <a onClick={() => saveCanvas()} 
+                className={`${dataPerPage.length === 0 ? "btn-disabled" : ""}`}>Save as Img</a>
             </div>
           </div>
           <div className="content">
